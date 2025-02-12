@@ -230,7 +230,6 @@ Dove `Componente.php` è così
 	    ... 
     }
 
-Un possibile motivo per cui in ambiente di sviluppo queste classi funzionassero anche se il lowercase è che l'ambiente server Linux di Aruba è case sensitive.
 <a name="altro" id="altro"></a>
 ## Altri errori
 Nel caso si riscontrassero altri errori è fondamentale capire se questi hanno origine nel server o in Laravel. Per farlo basta confrontare i log di Aruba con quelli di Laravel. Un foglio di log pulito di Laravel a fronte di una lista infinita di codici errore di Aruba indicano che il problema è con Aruba. Al contrario un log pulito di aruba e un log sporco di Laravel indica che il problema risiede nel codice.
