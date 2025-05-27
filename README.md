@@ -1,5 +1,7 @@
 # Deployment di Laravel su Aruba
 
+[Eng guide here](https://github.com/KostantinoAbate/aruba-laravel-en)
+
 Effettuare il deployment di un progetto Laravel da un ambiente di sviluppo a quello di produzione su un server [Aruba](https://www.aruba.it/) richiede dei passaggi specifici.
 
 Per questa guida mi riferisco a progetti che rispettino le seguenti condizioni:
