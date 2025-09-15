@@ -241,7 +241,7 @@ Nel caso si riscontrassero altri errori è fondamentale capire se questi hanno o
 
 ## Script di Deploy Laravel per Aruba
 
-# deploy_aruba.sh
+### deploy_aruba.sh
 
 Questo script automatizza il deploy del progetto Laravel su hosting Aruba:
 
