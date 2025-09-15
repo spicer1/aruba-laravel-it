@@ -237,3 +237,88 @@ Dove `Componente.php` è così
 <a name="altro" id="altro"></a>
 ## Altri errori
 Nel caso si riscontrassero altri errori è fondamentale capire se questi hanno origine nel server o in Laravel. Per farlo basta confrontare i log di Aruba con quelli di Laravel. Un foglio di log pulito di Laravel a fronte di una lista infinita di codici errore di Aruba indicano che il problema è con Aruba. Al contrario un log pulito di aruba e un log sporco di Laravel indica che il problema risiede nel codice.
+
+
+## Script di Deploy Laravel per Aruba
+
+# deploy_aruba.sh
+
+Questo script automatizza il deploy del progetto Laravel su hosting Aruba:
+
+- Pulisce le cache locali di Laravel
+- Compila gli asset frontend con Vite
+- Genera un dump del database locale
+- Prepara un file ZIP pronto per l’upload su Aruba (inclusi `storage` e `vendor`)
+- Gestisce automaticamente i file `.env` per locale e remoto
+- Ripristina il `.env` locale al termine
+
+```bash
+#!/bin/bash
+set -e
+
+# --- Configurazioni ---
+LOCAL_ENV=".env.local"
+REMOTE_ENV=".env.remote"
+APP_DIR="$(pwd)"
+DATE=$(date +"%Y%m%d_%H%M%S")
+TEMP_DIR="_temp_dir"
+ZIP_FILE="$TEMP_DIR/app_deploy_${DATE}.zip"
+SQL_FILE="$TEMP_DIR/db_dump_${DATE}.sql"
+
+mkdir -p "$TEMP_DIR"
+
+echo " Deploy start: $(date '+%a %d %b %Y, %H:%M:%S %Z')"
+
+# --- Leggi dati DB da .env.local ---
+DB_HOST=$(grep DB_HOST $LOCAL_ENV | cut -d '=' -f2- | xargs)
+DB_PORT=$(grep DB_PORT $LOCAL_ENV | cut -d '=' -f2- | xargs)
+DB_DATABASE=$(grep DB_DATABASE $LOCAL_ENV | cut -d '=' -f2- | xargs)
+DB_USERNAME=$(grep DB_USERNAME $LOCAL_ENV | cut -d '=' -f2- | xargs)
+DB_PASSWORD=$(grep DB_PASSWORD $LOCAL_ENV | cut -d '=' -f2- | xargs)
+
+echo " DB config:"
+echo "   Host: $DB_HOST"
+echo "   Port: $DB_PORT"
+echo "   DB:   $DB_DATABASE"
+echo "   User: $DB_USERNAME"
+
+# --- Backup .env ---
+cp .env "$TEMP_DIR/.env.backup.${DATE}"
+echo " Backup .env -> $TEMP_DIR/.env.backup.${DATE}"
+
+# --- Usa .env.local temporaneamente ---
+cp "$LOCAL_ENV" .env
+echo " Uso $LOCAL_ENV come .env temporaneo"
+
+# --- Pulizia Laravel (file-based) ---
+echo " Pulizia cache file-based..."
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+php artisan cache:clear
+
+# --- Compilazione assets ---
+echo " Compilazione asset..."
+npm ci
+npx vite build
+
+# --- Dump DB locale ---
+echo " Esporto database locale..."
+mysqldump -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" > "$SQL_FILE"
+
+# --- Usa .env.remote temporaneamente ---
+cp "$REMOTE_ENV" .env
+echo " Uso $REMOTE_ENV come .env per hosting ARUBA"
+
+# --- Generazione zip per upload ---
+echo " Generazione zip con storage e vendor inclusi..."
+zip -r "$ZIP_FILE" \
+  app bootstrap config database resources routes public storage vendor artisan composer.json composer.lock package.json package-lock.json vite.config.js .env
+
+echo " Deploy pronto!"
+echo " File zip: $ZIP_FILE"
+echo " SQL dump: $SQL_FILE"
+
+# --- Ripristino .env locale ---
+mv "$TEMP_DIR/.env.backup.${DATE}" .env
+echo " Ripristinato .env originale"
