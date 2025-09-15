@@ -2,6 +2,8 @@
 
 [Eng guide here](https://github.com/KostantinoAbate/aruba-laravel-en)
 
+# INTEGRAZIONE: aggiunto uno script che effettua la creazione del file zip da copiare su ARUBA e il file SQL per aggiornare il DB su ARUBA
+
 Effettuare il deployment di un progetto Laravel da un ambiente di sviluppo a quello di produzione su un server [Aruba](https://www.aruba.it/) richiede dei passaggi specifici.
 
 Per questa guida mi riferisco a progetti che rispettino le seguenti condizioni:
