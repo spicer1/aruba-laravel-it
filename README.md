@@ -240,6 +240,8 @@ Nel caso si riscontrassero altri errori è fondamentale capire se questi hanno o
 
 
 ## Script di Deploy Laravel per Aruba
+### ATTENZIONE: tutti i dati presenti sul Database remoto MySQL Aruba andranno persi.
+### Questo script è idoneo solo per la prima installazione dell'ambiente LARAVEL su HOSTING ARUBA, non per eventuali aggiornamenti del codice
 
 ### deploy_aruba.sh
 
